@@ -10,9 +10,12 @@ GEM
   specs:
     Ascii85 (1.1.0)
     afm (0.2.2)
+    ascii85_native (1.0.3)
+      ffi (~> 1.15, >= 1.15.0)
     clir (0.15.1)
       json
       tty-prompt
+    ffi (1.15.5)
     hashery (2.1.2)
     json (2.6.3)
     minitest (5.16.3)
@@ -47,10 +50,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  ascii85_native
   minitest (~> 5.0)
   minitest-color
   pdf-checker!
   pdf-inspector
+  pdf-reader
   rake (~> 12.0)
 
 BUNDLED WITH

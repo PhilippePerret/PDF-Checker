@@ -33,6 +33,12 @@ class Checker
         return false if str_aft && off_aft > off_str
         return false if str_bef && off_bef < off_str
       end
+      if searched.key?(:near)
+        str_near  = searched[:near]
+        offsets   = strings_with_offsets([str, str_near])
+        farness   = offsets[str_near] - offsets[str]
+        return false if farness < -30 || farness > (30 + str.length)
+      end
 
       # Il y aura d'autres vérifications ici, par exemple after:'other mot', before:'other mot'
     end

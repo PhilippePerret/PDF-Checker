@@ -1,4 +1,5 @@
 require 'test_helper'
+require_relative '_required_'
 
 class SimpleTestPdfChecker < Minitest::Test
 
@@ -9,20 +10,11 @@ class SimpleTestPdfChecker < Minitest::Test
 
   end
 
-  def pdf_file
-    File.join(ASSETS_FOLDER,'pdfs','bonjour.pdf')
-  end
-
-  def checker
-    @checker ||= PDF::Checker.new(pdf_file)
-  end
-
   # Test:
   #   PDF::Checker#strings 
   # against a simple "Hello world!"-like text.
   # 
   def test_strings 
-
     assert_respond_to checker, :strings
     assert_instance_of Array, checker.strings, "PDF::Checker#strings should return an Array (is a #{checker.strings.class} instance)."
     assert checker.strings.include?('Bonjour tout le monde !')
@@ -35,7 +27,6 @@ class SimpleTestPdfChecker < Minitest::Test
   end
 
   def test_include_string
-    
     assert_respond_to checker, :include?
 
     # Succeeds with…
@@ -48,6 +39,7 @@ class SimpleTestPdfChecker < Minitest::Test
       ['jour', 'le', 'mon'],
       {string:'Bonjour'},
       {string:'Bonjour', before:'monde'},
+      {string:'le', after:'Bonjour', before:'monde', near:'tout'},
       [/B.+jour/,'le','monde', {string:' '}],
     ].each do |searched|
       assert checker.include?(searched), "#{searched.inspect} should be find in strings with include?"
