@@ -5,6 +5,8 @@ require 'pdf/checker/pdf_checker'
 require 'pdf/checker/metadata'
 require 'pdf/checker/pages'
 require 'pdf/checker/Page'
+require 'pdf/checker/Page_Text'
+require 'pdf/checker/receivers'
 require 'pdf/checker/assertions'
 require 'pdf/checker/assertions_pages'
 

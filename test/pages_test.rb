@@ -22,6 +22,7 @@ class EssaiPageAnalysis < Minitest::Test
   end
 
   def test_one_page_properties
+    skip
     page = checker.page(1)
     assert_respond_to page, :number
     assert_equal 1, page.number, "Page should have number #{1} (get #{page.number.inspect}."
@@ -52,7 +53,27 @@ class EssaiPageAnalysis < Minitest::Test
     # puts "page.raw_content : #{page.raw_content.inspect}"
   end
 
+  def test_receiver_callbacks
+    # Pour voir si c'est intéressant d'avoir un fichier pouvant
+    # renvoyer tous les callbacks d'une page ou d'un fichier
+
+    # puts checker.page(1).receivers_callbacks
+    # puts checker_long.page(2).receivers_callbacks
+
+    # puts checker.page(1).show_texts_with_positioning.inspect
+    # puts checker_long.page(1).show_texts_with_positioning.inspect
+
+    # texte = checker.page(1).textes.first
+    texte = checker_long.page(1).textes[1]
+    # props = texte.properties
+    
+    puts "content : #{texte.content.inspect}"
+    puts "Fonte du texte : #{texte.font}"
+    puts "Taille du texte : #{texte.size}"
+
+  end
   def test_one_page_other_properties
+    skip
     # Pour fouiller les propriétés avant de les tester
     page = checker.page(1)
 
@@ -63,28 +84,6 @@ class EssaiPageAnalysis < Minitest::Test
     # page = checker_long.page(2)
     # # puts "(long) page text: #{page.text.inspect}"
 
-    ###############################################################
-    ###################       IMPORTANT !      ####################
-    ### CE BOUT DE CODE EST À ÉTUDIER PARTICULIÈREMENT, PARCE   ###
-    ### QU'IL SEMBLE POUVOIR RETOURNER TOUT CE QUI CONCERNE LES ###
-    ### DONNÉES DU DOCUMENT 
-    ###############################################################
-    receiver = PDF::Reader::RegisterReceiver.new
-    page.reader_page.walk(receiver)
-    receiver.callbacks.each do |cb|
-      puts cb
-    end
-=begin
-  @PRODUIT : 
-    {:name=>:page=, :args=>[<PDF::Reader::Page page: 1>]}
-    {:name=>:save_graphics_state, :args=>[]}
-    {:name=>:begin_text_object, :args=>[]}
-    {:name=>:move_text_position, :args=>[36.0, 736.82]}
-    {:name=>:set_text_font_and_size, :args=>[:"F1.0", 10]}
-    {:name=>:show_text_with_positioning, :args=>[["Bonjour tout le monde\xA0!"]]}
-    {:name=>:end_text_object, :args=>[]}
-    {:name=>:restore_graphics_state, :args=>[]}
-=end
   end
 
 

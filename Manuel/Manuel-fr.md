@@ -55,6 +55,22 @@ Retourne true si le document contient bien ce nombre de page.
 
 ## Propriétés
 
+<a name="property-texts"></a>
+
+### `[Array<String>] <checker>.page(x).texts`
+
+La liste des textes de la page de numéro `x`.
+
+> La valeur doit être plus sûre que `#strings` ci-dessous.
+
+<a name="property-text"></a>
+
+### `[String] <checker>.page(x).text`
+
+Le texte complet de la page `x`, de façon rigoureuse.
+
+> Ici aussi, la valeur doit être plus sûre qu’avec `#strings` ci-dessous.
+
 <a name="strings-property"></a>
 
 ### `[Array<String>] <checker>#strings`
