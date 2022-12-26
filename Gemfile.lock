@@ -17,6 +17,7 @@ GEM
       tty-prompt
     ffi (1.15.5)
     hashery (2.1.2)
+    iconv (1.0.8)
     json (2.6.3)
     minitest (5.16.3)
     minitest-color (0.0.2)
@@ -51,6 +52,7 @@ PLATFORMS
 
 DEPENDENCIES
   ascii85_native
+  iconv
   minitest (~> 5.0)
   minitest-color
   pdf-checker!

@@ -55,6 +55,24 @@ Retourne true si le document contient bien ce nombre de page.
 
 ## Propriétés
 
+### `[Array<Hash>] <checker>.page(x).texts_with_properties`
+
+C’est sans doute la donnée la plus importante de toutes. Elle contient des informations précises sur tous les textes de la page `x`. Les propriétés sont détaillées ci-dessous.
+
+~~~
+content: 		[String] 	Le contenu textuel, le texte
+type: 			[Symbol] 	Le type de texte, entre celui écrit par show_text (:txt)
+ 											et celui écrit par show_text_with_positioning (:twp)
+font_name 	[String] 	Nom de la fonte, qui peut être "F1.0" ou le nom explicite
+font_size 	[Integer] Taille de la police (peut être un Float ?)
+left 				[Float] 	Position horizontal du texte
+top 				[Float] 	Position verticale du texte.
+# TODO D'autres propriétés peuvent suivre, en définition le leading, 
+# les "caractères spacing" et autres propriétés pouvant affecter les textes
+~~~
+
+
+
 <a name="property-texts"></a>
 
 ### `[Array<String>] <checker>.page(x).texts`

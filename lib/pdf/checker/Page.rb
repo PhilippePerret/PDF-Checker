@@ -25,7 +25,11 @@ class Page
       require 'iconv'
       texts_objects.map do |ptext| 
         # ptext.content
-        Iconv.iconv('utf-8', 'iso8859-1', ptext.content).join(' ')
+        # puts "ptext.content = #{ptext.content.inspect}:#{ptext.content.class}"
+        # sleep 4
+        c = ptext.content
+        c = c.join(' ') if c.is_a?(Array)
+        Iconv.iconv('utf-8', 'iso8859-1', c).join(' ')
       end
     end
   end
