@@ -13,6 +13,12 @@ class Checker
     @options  = options
   end
 
+  def check(&block)
+    if block_given?
+      puts "Je dois apprendre à faire quelque chose avec le bloc."
+    end
+  end
+
 
   # = main properties =
   # 

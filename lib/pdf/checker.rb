@@ -1,6 +1,7 @@
 require 'pdf/inspector'
 require 'clir'
 require "pdf/checker/version"
+require "pdf/checker/integer"
 require 'pdf/checker/pdf_checker'
 require 'pdf/checker/metadata'
 require 'pdf/checker/pages'
