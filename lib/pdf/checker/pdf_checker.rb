@@ -1,24 +1,21 @@
 module PDF
 class Checker
+  include Minitest::Assertions
+  include ActiveChecker
 
   attr_reader :path
   attr_reader :options
+  attr_accessor :assertions
 
   # Initialize a new PDF Checker to check a PDF document.
   # 
   # @param [String] path to the PDF file
   # @param [Hash] options Some options
   def initialize(path, options = nil)
+    @assertions = 0
     @path     = path
     @options  = options
   end
-
-  def check(&block)
-    if block_given?
-      puts "Je dois apprendre à faire quelque chose avec le bloc."
-    end
-  end
-
 
   # = main properties =
   # 
