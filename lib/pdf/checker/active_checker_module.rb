@@ -15,6 +15,11 @@
 module PDF
 module ActiveChecker
 
+  def not
+    @negative = true
+    return self
+  end
+
   ##
   # Produit une erreur si le document checké ne contient pas 
   # +what+
@@ -29,6 +34,22 @@ module ActiveChecker
   end
 
 
+  def has_text(strs, properties = nil, error_message = nil)
+    if properties.is_a?(String)
+      error_message = "#{properties}"
+      properties = nil
+    end
+    args = [strings.join(" "), strs]
+    args << error_message unless error_message.nil?
+    if @negative
+      refute_includes(*args)
+      @negative = false
+    else
+      assert_includes(*args)
+    end
+  end
+
+
 private 
 
   def has_x_pages(count)
@@ -36,4 +57,7 @@ private
   end
 
 end #/module ActiveChecker
+
 end #/module PDF
+
+

@@ -1,3 +1,4 @@
+require 'minitest/assertions'
 module PDF
 class Checker
   include Minitest::Assertions
@@ -15,6 +16,11 @@ class Checker
     @assertions = 0
     @path     = path
     @options  = options
+    @negative = false # pour inverser les tests
+  end
+
+  def inspect
+    @inspect ||= "#<PDF::Checker path=#{path} options=#{options.inspect}>"
   end
 
   # = main properties =

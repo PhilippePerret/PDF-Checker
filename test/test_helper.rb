@@ -12,3 +12,40 @@ reporter_options = {
 Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(reporter_options)]
 
 ASSETS_FOLDER = File.join(__dir__,'assets')
+
+module Minitest::Assertions
+
+  ##
+  # Quand on attend un échec (failure)
+  # 
+  def assert_fails(with_message = nil, &block)
+    if block_given?
+      err = assert_raises(Minitest::Assertion) do
+        @assertions -= 1
+        yield
+      end
+      if with_message
+        @assertions -= 1
+        assert_match(with_message, err.message, "L'affirmation échoue bien, mais elle devrait échouer avec le message #{with_message.inspect}. Elle échoue avec #{err.message.inspect}.")
+      end
+    else
+      raise "Il faut fournir un bloc à assert_fails"
+    end
+  end
+  alias :assert_failure :assert_fails
+
+  def assert_success( err_msg = nil, &block)
+    if block_given?
+      problemo = nil
+      begin
+        yield
+      rescue Minitest::Assertion => e
+        problemo = e
+      end
+      refute(problemo, "L'affirmation n'aurait pas dû échouer… Elle a échoué avec le message #{problemo && problemo.message.inspect}.")
+    else
+      raise "Il faut fournir un bloc à assert_success !"
+    end
+  end
+  alias :assert_not_fails :assert_success
+end #/module Minitest

@@ -2,6 +2,9 @@
 module PDF
 class Checker
 class Page
+  include Minitest::Assertions
+  include ActiveChecker
+  attr_accessor :assertions
 
   # [PDF::Checker] owner
   attr_reader :checker
@@ -17,6 +20,8 @@ class Page
   def initialize(checker, page)
     @checker = checker
     @reader_page = page
+    @assertions  = 0 
+    @negative = false # pour inverser les tests
   end
 
   # @return [Array<String>] List of every texts.
@@ -33,14 +38,11 @@ class Page
       end
     end
   end
+  alias :strings :texts # pour correspondre à PDF::Checker
 
   # @return [String] Whole refactored text of the page
   def text
-    @text ||= begin
-      # require 'iconv'
-      # Iconv.iconv('utf-8', 'iso8859-1', *texts).join(' ')
-      texts.join(' ')
-    end
+    @text ||= texts.join(' ')
   end
 
   # @return [Array[String]] All the sentences of the text.

@@ -21,6 +21,122 @@ checker.strings
 
 ---
 
+La première chose à faire est d’instancier un *checker*. Il attend simplement le chemin d’accès au document PDF (on pourra, plus tard, ajouter quelques options) :
+
+~~~ruby
+require 'pdf/checker'
+
+pdf = PDF::Checker.new("path/to/doc.pdf")
+~~~
+
+On peut ensuite utiliser les assertions sur cette instance, qui se présentent toujours comme des affirmations simples. Par exemple, une affirmation donnant le nombre de pages :
+
+~~~ruby
+pdf.has(5.pages)
+# => Si le document doc.pdf contient 5 pages, une réussite sera
+#    produite, sinon, une failure sera initiée.
+~~~
+
+Pour faire référence à une page précise, on utilise la tournure :
+
+~~~ruby
+pdf.page(x).<methode>
+~~~
+
+Par exemple, pour contrôler que la page 12 contient bien 4 images, on utilise :
+
+~~~ruby
+pdf.page(12).has(4.images)
+# => Failure si la page numéro 12 (la vraie 12e) ne contient pas
+#    exactement 4 images.
+~~~
+
+Comme on peut le voir, la méthode `#has` reçoit un simple nombre d’objets d’un certain type (page, image, graphique, etc.). On utilise ensuite des méthodes plus précises pour contrôler en détail les différents éléments. À commencer par les méthodes :
+
+* **`has_text`**, pour contrôler la présence précise d’un texte à un endroit précis avec des propriétés précises,
+* **`has_image`**, pour contrôler la présence d’une image précise, à l’endroit précis avec les propriétés précises,
+* **`has_header`**, idem pour les entête,
+* **`has_footer`**, idem pour les pieds de page.
+
+Nous allons voir ces méthodes en détail.
+
+<a name="asssertion-has_text"></a>
+
+### Assertion `has_text`
+
+Cette assertion attend un seul argument : le texte ou les textes à trouver dans le PDF ou la page. 
+
+Par exemple :
+
+~~~ruby
+pdf.has_text("Bonjour tout le monde")
+pdf.has_text(["Bonjour", "tout", "le", "monde"])
+pdf.has_text(/(Bonjour|Au revoir) tout le monde/i)
+pdf.page(2).has_text("Bonjour")
+~~~
+
+ou la négation :
+
+~~~ruby
+pdf.not.has_text("Bonjour tout le monde")
+~~~
+
+On peut ajouter des propriétés :
+
+~~~ruby
+pdf.has_text("Bonjour tout le monde", {at: [100,10], font:'Helvetica', size:15})
+~~~
+
+On peut définir le message d’erreur :
+
+~~~ruby
+pdf.has_text("Bonjour", "Le document devrait contenir le texte 'Bonjour'")
+~~~
+
+
+
+<a name="assertion-has_texte-properties"></a>
+
+#### `has_text` propriétés
+
+~~~bash
+at: 		[Array<Integer|String>] Position du contenu du texte
+width: 	[Integer|String] Largeur du contenu du texte
+font: 	[String] La fonte du texte
+size: 	[Integer|String] La taille du texte
+color:  [String] La couleur du texte
+page: 	[Integer] La page de début du texte
+pages:	[Array<Integer>] Les pages si le texte tient sur plusieurs pages
+~~~
+
+
+
+<a name="assertion-has_image"></a>
+
+### Assertion `has_image`
+
+<a name="assertion-has_header"></a>
+
+### Assertion `has_header`
+
+Pas encore implémenté
+
+<a name="negative-assertion"></a>
+
+### Assertion négative
+
+Comme on a pu le voir précédemment, on marque l’assertion négative à l’aide du *préfixe* `not` :
+
+~~~ruby
+pdf.not.has_text("Bonjour")
+~~~
+
+
+
+---
+
+
+
 <a name="assertions"></a>
 
 ## Assertions
