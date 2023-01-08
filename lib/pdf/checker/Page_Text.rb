@@ -8,6 +8,8 @@
   'end_text_object'
 
 =end
+require 'iconv'
+
 module PDF
 class Checker
 class Page
@@ -43,7 +45,7 @@ class Text
     @content ||= begin
       str = get_raw_content
       str = str.join(' ') if str.is_a?(Array)
-      Iconv.iconv('utf-8', 'iso8859-1', str).join(' ')
+      Iconv.iconv('utf-8', 'iso8859-1', str).join(' ') # TODO en fonction des langues (LANG)
     end
   end
   def font  ; properties[:text_font_and_size][0] end
