@@ -43,7 +43,7 @@ class EssaiPageAnalysis < Minitest::Test
     page = checker.page(1)
     assert_respond_to page, :text
     actual = page.text
-    expected = 'Bonjour tout le monde!' # noter l'absence de l'insécable
+    expected = 'Bonjour tout le monde !'
     assert_equal expected, actual
   end
 
@@ -64,7 +64,7 @@ class EssaiPageAnalysis < Minitest::Test
     # puts checker_long.page(1).show_texts_with_positioning.inspect
 
     # texte = checker.page(1).textes.first
-    texte = checker_long.page(1).textes[1]
+    texte = checker_long.page(1).texts_objects[1]
     # props = texte.properties
     
     puts "content : #{texte.content.inspect}"

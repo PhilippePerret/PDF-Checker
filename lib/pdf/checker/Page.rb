@@ -18,13 +18,18 @@ class Page
   # @param [PDF::Checker] checker Owner instance
   # @param [PDF::Reader::Page] Instance of page
   def initialize(checker, page)
-    @checker = checker
-    @reader_page = page
-    @assertions  = 0 
-    @negative = false # pour inverser les tests
+    @checker        = checker
+    @reader_page    = page
+    # puts "page = #{page.methods(true)}"
+    # puts "\n+++ properties : #{page.properties.inspect}"
+    # puts "\n+++ width/height : #{page.width}/#{page.height}"
+    # exit
+    @assertions     = 0 
+    @negative       = false # pour inverser les tests
+    @search_strings = nil # les textes à chercher
   end
 
-  # @return [Array<String>] List of every texts.
+  # @return [Array<PDF::Checker::Page::Text>] List of every texts-objects.
   def texts
     @texts ||= begin
       require 'iconv'
@@ -32,9 +37,10 @@ class Page
         # ptext.content
         # puts "ptext.content = #{ptext.content.inspect}:#{ptext.content.class}"
         # sleep 4
-        c = ptext.content
-        c = c.join(' ') if c.is_a?(Array)
-        Iconv.iconv('utf-8', 'iso8859-1', c).join(' ')
+        # c = ptext.content
+        # c = c.join(' ') if c.is_a?(Array)
+        # Iconv.iconv('utf-8', 'iso8859-1', c).join(' ')
+        ptext.content
       end
     end
   end
@@ -68,11 +74,20 @@ class Page
   # - Shortcuts -
 
   # @return [Integer] page number
+  def width       ; reader_page.width       end # en points-pdf
+  def height      ; reader_page.height      end # idem
+  def x           ; origin.x                end # idem
+  def y           ; origin.y                end # idem
   def number      ; reader_page.number      end
   def objects     ; reader_page.objects     end
   def fonts       ; reader_page.fonts       end
-  # def text        ; reader_page.text        end # no, see above
   def raw_content ; reader_page.raw_content end
+  # @return [PDF::Reader::Point] Le point d'origine de la page, qui
+  # répond notamment à #x et #y (mais bon, pour le moment, je 
+  # n'obtiens toujours que les coordonnées 0,0)
+  def origin
+    reader_page.origin
+  end
 
 end #/class Page
 end #/class Checker

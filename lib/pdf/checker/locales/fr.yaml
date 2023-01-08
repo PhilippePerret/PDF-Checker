@@ -1,0 +1,19 @@
+---
+no_objects_for_with_properties: "Aucun objet n'est défini pour analyser ses propriétés… La tournure .with_properties ou .with ne s'utilise qu'après des méthodes de type .has_text ou .has_image."
+
+invalid_type_to_search_text: "La recherche de texte nécessite un String ou un Regexp, pas un type %s."
+object_text_properties_must_be_an_hash: "Les propriétés de l'objet-texte doivent être définies par une table (Hash)."
+unknow_text_object_property: "La propriété %s n'est pas définie pour les objets textuels."
+
+failures:
+  expected: "attendu :"
+  actual:   "valeur :"
+  bad_page_count: "Le document devrait contenir %s page. Il en contient %."
+  text_with_properties_not_found: "Impossible de trouver le texte %s avec les propriétés %s."
+  text_founds_but_not_count: "Des textes répondant aux propriétés ont été trouvées, mais pas le nombre voulu. Attendus : %s. Trouvés : %s."
+  text_unfound: "Aucun texte correspondant aux critères n'a été trouvé."
+  but_only_text_found: "Mais des textes approchants ont été trouvés :"
+  but_only_props_found: "Mais des textes ne correspondants pas on été trouvés avec les bonnes propriétés : %s"
+  text_with_good_and_bad_property: "- le texte %{text} à %{at} %{goods} et les propriétés erronées : %{bads}."
+  any_good_properties: "sans aucune bonne propriété"
+  the_good_properties: "les bonnes propriétés : "

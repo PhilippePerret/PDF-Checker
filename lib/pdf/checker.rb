@@ -1,5 +1,8 @@
+require 'yaml'
 require 'pdf/inspector'
 require 'clir'
+require 'pdf/checker/constants'
+require 'pdf/checker/config'
 require 'pdf/checker/active_checker_module'
 require "pdf/checker/version"
 require "pdf/checker/integer"
@@ -11,6 +14,7 @@ require 'pdf/checker/Page_Text'
 require 'pdf/checker/receivers'
 require 'pdf/checker/assertions'
 require 'pdf/checker/assertions_pages'
+require 'pdf/checker/level_matcher'
 
 module Pdf
   module Checker

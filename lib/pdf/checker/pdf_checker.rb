@@ -17,6 +17,7 @@ class Checker
     @path     = path
     @options  = options
     @negative = false # pour inverser les tests
+    @search_strings = nil # les textes à chercher
   end
 
   def inspect

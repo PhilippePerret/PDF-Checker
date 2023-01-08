@@ -84,8 +84,16 @@ pdf.not.has_text("Bonjour tout le monde")
 On peut ajouter des propriétés :
 
 ~~~ruby
-pdf.has_text("Bonjour tout le monde", {at: [100,10], font:'Helvetica', size:15})
+pdf.has_text("Bonjour tout le monde").with_properties({at: [100,10], font:'Helvetica', size:15})
 ~~~
+
+… ou avec des raccourcis :
+
+~~~ruby
+pdf.has_text("Bonjour tout le monde").with({at: [100,10], font:'Helvetica', size:15})
+~~~
+
+> Noter que pour le `:at`, il y a une approximation dont la tolérance peut être définie précisément. TODO
 
 On peut définir le message d’erreur :
 
