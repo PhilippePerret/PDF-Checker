@@ -33,13 +33,7 @@ class Page
   def texts
     @texts ||= begin
       require 'iconv'
-      texts_objects.map do |ptext| 
-        # ptext.content
-        # puts "ptext.content = #{ptext.content.inspect}:#{ptext.content.class}"
-        # sleep 4
-        # c = ptext.content
-        # c = c.join(' ') if c.is_a?(Array)
-        # Iconv.iconv('utf-8', 'iso8859-1', c).join(' ')
+      texts_objects.map do |ptext|
         ptext.content
       end
     end

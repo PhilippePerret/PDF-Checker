@@ -71,4 +71,12 @@ class HasTextTest < Minitest::Test
     assert_failure { pdf.page(1).has_text('Bonjour').with(**props)}
   end
 
+  def test_to_get_properties
+    PDF::Checker.set_config(:default_output_unit, :mm)
+    # C'est un faux test qui doit permettre d'obtenir certaines
+    # valeurs
+    props = {at: [13.mm, 19.mm]}
+    puts pdf.page(1).has_text('Bonjour').with(**props)
+  end
+
 end #/class HasTextTest

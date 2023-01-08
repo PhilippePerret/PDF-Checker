@@ -2,8 +2,10 @@ module PDF
 class Checker
 class LevelMatcher
   include ErrorModule
+  include Prawn::Measurements
 
   COORDONNATE_TOLERANCE = PDF::Checker.config[:coordonates_tolerance]
+  OUTPUT_UNIT = PDF::Checker.config[:default_output_unit]
 
   attr_reader :text_object
   attr_reader :regstring
@@ -21,8 +23,16 @@ class LevelMatcher
     text_is_matching? && props_are_matching?
   end
 
+  # Just for writing (helper)
   def at
-    text_object.at.inspect
+    if OUTPUT_UNIT != :pt
+      case OUTPUT_UNIT
+      when :mm then text_object.at.map{|n| "#{pt2mm(n).round(3)}mm" }
+      when :cm then text_object.at.map{|n| "#{(pt2mm(n).to_f / 10).round(3)}cm" }
+      end
+    else
+      text_object.at
+    end.inspect
   end
 
   def good_properties

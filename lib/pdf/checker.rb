@@ -1,6 +1,9 @@
 require 'yaml'
 require 'pdf/inspector'
 require 'clir'
+require 'prawn'
+require "prawn/measurement_extensions" # to use 1.cm etc.
+# Prawn::Fonts::AFM.hide_m17n_warning = true
 require 'pdf/checker/constants'
 require 'pdf/checker/config'
 require 'pdf/checker/active_checker_module'
