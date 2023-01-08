@@ -1,8 +1,7 @@
-# Pdf::Checker
+# PDF::Checker
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/pdf/checker`. To experiment with that code, run `bin/console` for an interactive prompt.
+Welcome to PDF::Checker and easy test your PDF documents.
 
-TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
@@ -22,7 +21,41 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Make a "PDF checker":
+
+~~~ruby
+
+pdf = PDF::Checker.new("path/to/your/doc.pdf")
+
+~~~
+
+… and use it to check your document in detail.
+
+For instance:
+
+~~~ruby
+require 'test_helper'
+
+class MyPdfTester < Minitest::Test
+
+  def pdf
+    @pdf ||= PDF::Checker.new("path/to/your/doc.pdf")
+  end
+
+  def test_my_pdf_doc
+    
+    pdf.page(2).has_text("Hello word!").with(**{font: :"F1.0", at:[20,50]})
+    # => fails if page 2 of document doesn't contains a text
+    #     in :F1.0 font, at 20 points left and 50 points top.
+    #     succeed otherwise
+
+    pdf.page(3).has_image('myimage.jpg').at(300, 688).with(**{width:200.px})
+
+  end
+
+end
+
+~~~
 
 ## Development
 
@@ -32,5 +65,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/pdf-checker.
+Bug reports and pull requests are welcome on GitHub at https://github.com/PhilippePerret/pdf-checker.
 
