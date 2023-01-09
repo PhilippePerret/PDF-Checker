@@ -17,3 +17,5 @@ failures:
   text_with_good_and_bad_property: "- le texte %{text} à %{at} %{goods} et les propriétés erronées : %{bads}."
   any_good_properties: "sans aucune bonne propriété"
   the_good_properties: "les bonnes propriétés : "
+
+  searched_text_required_for_at_test: "Des textes doivent être fournis, pour faire une recherche de positionnement de texte…"

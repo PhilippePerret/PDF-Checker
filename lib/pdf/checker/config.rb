@@ -45,7 +45,7 @@ class Config
 
   def default_values
     {
-      top_based: true,
+      top_based: false,
       coordonates_tolerance: 2,
       default_output_unit: :pt
     }

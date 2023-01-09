@@ -13,8 +13,8 @@ text_analysis.strings # => ["foo"]
 On fera :
 
 ~~~ruby
-checker = PDF::Checker.new("mon.pdf", **options)
-checker.strings
+pdf = PDF::Checker.new("mon.pdf", **options)
+pdf.strings
 ~~~
 
 ## Utilisation
@@ -81,7 +81,11 @@ ou la négation :
 pdf.not.has_text("Bonjour tout le monde")
 ~~~
 
-On peut ajouter des propriétés :
+<a name="assertion-has_text-with_properties"></a>
+
+### Assertion `has_text(...).with_properties(...)`
+
+On peut ajouter la recherche de propriétés :
 
 ~~~ruby
 pdf.has_text("Bonjour tout le monde").with_properties({at: [100,10], font:'Helvetica', size:15})
@@ -93,7 +97,9 @@ pdf.has_text("Bonjour tout le monde").with_properties({at: [100,10], font:'Helve
 pdf.has_text("Bonjour tout le monde").with({at: [100,10], font:'Helvetica', size:15})
 ~~~
 
-> Noter que pour le `:at`, il y a une approximation dont la tolérance peut être définie précisément. TODO
+> Noter que pour le `:at`, il y a une approximation dont la tolérance peut être définie précisément avec :
+>
+> `PDF::Checker.set_config(:coordonates_tolerance, <nouvelle valeur>[.<unit>])`
 
 On peut définir le message d’erreur :
 
@@ -101,15 +107,99 @@ On peut définir le message d’erreur :
 pdf.has_text("Bonjour", "Le document devrait contenir le texte 'Bonjour'")
 ~~~
 
+### Assertion `has_text(...).with(...)`
+
+Alias raccourci de [`has_text(...).with_properties(...)`](#assertion-has_text-with_properties).
+
+<a name="assertion-has_text-at"></a>
+
+### Assertion `has_text(...).at(...)`
+
+Permet de contrôler qu’un ou des textes sont à leur place.
+
+Pour voir [les arguments de `has_text`](#asssertion-has_text).
+
+`at` peut recevoir plusieurs arguments, de 1 à 3.
+
+Si elle ne reçoit qu’un argument, c’est :
+
+* SOIT la valeur **:top** attendue,
+
+  ~~~ruby
+  pdf.page(1).has_text("Mon texte").at(100)
+  # => Le texte doit avoir un top à 100
+  ~~~
+
+* SOIT une table contenant au choix : `{:left, :top, :right, :bottom}`.
+
+  ~~~ruby
+  pdf.page(1).has_text("Mon texte").at(**{top:100.0, left:23})
+  # => le texte "Mon texte" doit avoir un top de 100 et un left de 23
+  ~~~
+
+Si `at` reçoit **2 arguments**, ce sont :
+
+* SOIT une table de propriétés (comme ci-dessus) et le delta autorisé (tolérance)
+
+  ~~~ruby
+  pdf.page(1).has_text("Mon texte").at(**{top:100.0, left:23}, 10)
+  # => le texte "Mon texte" doit avoir un top de 100 et un left de 23
+  # 	 avec une tolérance de 10.
+  ~~~
+
+* SOIT la valeur **:left** et la valeur **:top**
+
+  ~~~ruby
+  pdf.page(1).has_text("Mon texte").at(20, 100)
+  # => Le texte "Mon texte" doit avoir un top à 100 et un left à 20
+  ~~~
+
+  > Bien noter que dans ce cas le top devient le second argument.
+
+Si `at` reçoit **3 arguments**, ce sont dans l’ordre : le **:left**, le **:top** et la **tolérance** (le “delta”).
+
+<a name="assertion-has_text-close_to"></a>
+
+### Assertion `has_text(...).close_to(...)`
+
+Cette méthode produit une erreur si le texte n’existe pas (testé par `has_text`) et ne se trouve pas aux coordonnées indiquées par les arguments de `close_to` avec une tolérance de 2 (dont une petite tolérance).
+
+C’est en fait la même assertion que [`at`](#assertion-has_text-at) mais avec une tolérance définie.
+
+La méthode attend 2 arguments qui correspondent aux deux premiers de la méthode [`at`](#assertion-has_text-at) (le `:top` s’il n’y en a qu’un seul, le `:left` et le `:top` s’il y en a 2).
+
+<a name="assertion-has_text-near"></a>
+
+### Assertion `has_text(...).near(...)`
+
+Cette méthode produit une erreur si le texte n’existe pas (testé par `has_text`) et ne se trouve pas aux coordonnées indiquées par les arguments de `near` avec une tolérance correspondant à la tolérance par défaut.
+
+C’est en fait la même assertion que [`at`](#assertion-has_text-at) mais avec une tolérance définie.
+
+La méthode attend 2 arguments qui correspondent aux deux premiers de la méthode [`at`](#assertion-has_text-at) (le `:top` s’il n’y en a qu’un seul, le `:left` et le `:top` s’il y en a 2).
+
+On peut définir la tolérance par défaut à l’aide de :
+
+~~~ruby
+PDF::Checker.set_config(:coordonates_tolerance, <new value>)
+~~~
+
+---
+
 
 
 <a name="assertion-has_texte-properties"></a>
 
-#### `has_text` propriétés
+#### `has_text(...).with|with_properties` propriétés
 
 ~~~bash
 at: 		[Array<Integer|String>] Position du contenu du texte
+				On peut changer l’unité (par défaut, ce sont des postscript-points
+				avec : <integer|float>.mm ou <integer|float>.in etc.
 width: 	[Integer|String] Largeur du contenu du texte
+				Là aussi on peut définir une autre unité avec <float>.<unit>
+height: [Integer|String] Hauteur du contenu du texte
+				Là aussi on peut définir une autre unité avec <float>.<unit>
 font: 	[String] La fonte du texte
 size: 	[Integer|String] La taille du texte
 color:  [String] La couleur du texte
@@ -149,7 +239,9 @@ pdf.not.has_text("Bonjour")
 
 ## Assertions
 
-### `<checker>#include?(args)`
+### `.include?(args)`
+
+{Ancienne méthode, mais toujours active}
 
 Retourne true si le document contient l’argument
 
@@ -171,15 +263,15 @@ L’argument peut être :
 
 <a name="assertion-has-page-number"></a>
 
-### `<checker>#has_page_number?(<nombre pages>)`
+### `.has_page_number?(<nombre pages>)`
 
 Retourne true si le document contient bien ce nombre de page.
 
 ---
 
-## Propriétés
+## Propriétés d’une instance `PDF::Checker`
 
-### `[Array<Hash>] <checker>.page(x).texts_with_properties`
+### `.page(x).texts_with_properties`
 
 C’est sans doute la donnée la plus importante de toutes. Elle contient des informations précises sur tous les textes de la page `x`. Les propriétés sont détaillées ci-dessous.
 
@@ -199,7 +291,7 @@ top 				[Float] 	Position verticale du texte.
 
 <a name="property-texts"></a>
 
-### `[Array<String>] <checker>.page(x).texts`
+### `.page(x).texts`
 
 La liste des textes de la page de numéro `x`.
 
@@ -207,7 +299,7 @@ La liste des textes de la page de numéro `x`.
 
 <a name="property-text"></a>
 
-### `[String] <checker>.page(x).text`
+### `.page(x).text`
 
 Le texte complet de la page `x`, de façon rigoureuse.
 
@@ -215,18 +307,18 @@ Le texte complet de la page `x`, de façon rigoureuse.
 
 <a name="strings-property"></a>
 
-### `[Array<String>] <checker>#strings`
+### `.strings`
 
 Retourne la liste des strings. Attention, les phrases peuvent être découpées en lignes.
 
 <a name="plain_text-property"></a>
 
-### `[String] <checker>#plain_text`
+### `.plain_text`
 
 Le texte complet, mais pas forcément exact dans le détail, puisque c’est simplement la propriété [`#strings`](#string-property) qui est jointe avec des espaces.
 
 <a name="page-properties"></a>
 
-### `[PDF::Checker::Page] <checker>#page(x)`
+### `.page(x)`
 
-Retourne l’instance Page de la page `x` (1-start).
+Retourne l’instance Page de la page `x` (1-start). C’est une instance `PDF::Checker::Page`.

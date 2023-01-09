@@ -12,6 +12,7 @@ reporter_options = {
 Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(reporter_options)]
 
 ASSETS_FOLDER = File.join(__dir__,'assets')
+TRY_FOLDER    = File.join(ASSETS_FOLDER,'essais')
 
 module Minitest::Assertions
 

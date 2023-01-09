@@ -71,8 +71,8 @@ class Text
         # ?
       end || return
       x, y = pos
-      x += page.x
-      y += page.y
+      # x += page.x
+      # y += page.y
       y = page.height - y if PDF::Checker.config[:top_based]
       return {top: y, left: x, bot: nil, right: page.width}
     end

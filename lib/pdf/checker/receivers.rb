@@ -58,6 +58,7 @@ class Page
           textes << {content:content, type: type, properties: props, raw_content: args}
         when :save_graphics_state
           # if args?
+          ary << "Callback: :save_graphics_state"
         when :move_text_position
           ary << "2DCURSOR left & top set at #{args[0]} & #{args[1]}"
           current_2d_cursor = {left:args[0], top:args[1]}
@@ -74,6 +75,7 @@ class Page
           ary << "INVOKE XOBT #{args}"
         when :restore_graphics_state
           # if args?
+          ary << "Callback: :restore_graphics_state"
         when :page=
           ary << "Sur la page…"
         else

@@ -27,6 +27,7 @@ class Page
     @assertions     = 0 
     @negative       = false # pour inverser les tests
     @search_strings = nil # les textes à chercher
+    @matchers       = nil # les level-matchers des textes trouvés
   end
 
   # @return [Array<PDF::Checker::Page::Text>] List of every texts-objects.
