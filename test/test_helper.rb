@@ -37,6 +37,7 @@ module Minitest::Assertions
 
   def assert_success( err_msg = nil, &block)
     if block_given?
+      ini_assertions_count = assertions.freeze
       problemo = nil
       begin
         yield
@@ -44,6 +45,13 @@ module Minitest::Assertions
         problemo = e
       end
       refute(problemo, "L'affirmation n'aurait pas dû échouer… Elle a échoué avec le message #{problemo && problemo.message.inspect}.")
+      # 
+      # Mais une assertion a-t-elle bien été produite ?
+      # 
+      # TODO : je ne sais pas encore le savoir, puisque @assertions
+      # semble être une variable d'instance, et deux instances différentes
+      # sont donc utilisées, entre celle-ci et celle jouée dans le
+      # code testé.
     else
       raise "Il faut fournir un bloc à assert_success !"
     end

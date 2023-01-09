@@ -35,6 +35,18 @@ class LevelMatcher
     end.inspect
   end
 
+  # @return [String] Le message complet d'erreur pour le text-object
+  # associé à ce level-matcher lorsqu'il ne contient pas les propriétés
+  # attendues.
+  def build_failure_message_with_good_and_bad_properties
+    ERRORS[:failures][:text_with_good_and_bad_property] % {
+      text:   text_object.content.inspect,
+      at:     self.at,
+      goods:  good_properties,
+      bads:   bad_properties
+    }
+  end
+
   def good_properties
     if @matching_properties.empty?
       ERRORS[:failures][:any_good_properties]

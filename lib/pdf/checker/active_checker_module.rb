@@ -13,14 +13,63 @@
 
     Read document to get all the check methods.
     
+
+  TODO
+    Problème pour le moment avec le @negative (si on le met à 
+    true, il reste à true pour tout le temps)
+    =>  À chaque appel d'une assertion (comme :has ou :has_text et 
+        donc, aussi, :not), il faut créer une instance qui va se
+        charger de tester.
+    note : cela devrait aussi régler certains problèmes, car en
+    créant une instance unique, on pourra mettre plus de propriété
+    en propriété
+    QUESTION : est-il possible de fondre avec level_matcher qui n'a
+    plus vraiment de sens ?
+    Ce serait par exemple une instance PDF::Checker::Assertion qui 
+    pourrait être décliné en PDF::Checker::TextAssertion ou 
+    PDF::Checker::ImageAssertion
+    Noter que lorsque c'est appelé par :not, on ne sait pas encore
+    ce que c'est, donc il faut utiliser PDF::Checker::NegAssertion
+
 =end
 module PDF
 module ActiveChecker
   include ErrorModule
 
   def not
-    @negative = true
-    return self # pour jouer la suite
+    return PDF::Checker::NegAssertion.new(self, nil, nil)
+  end
+
+  def has_text(strs, error_tmp = nil, options = nil)
+    if error_tmp.is_a?(Hash)
+      options = error_tmp
+    else
+      options ||= {}
+      options.merge!(error_tmp: error_tmp) unless error_tmp.nil?
+    end
+    assertion = PDF::Checker::TextAssertion.new(self, strs, options)
+    assertion.proceed
+    return assertion
+  end
+
+  def has_image(img_path, error_tmp = nil, options = nil)
+    if error_tmp.is_a?(Hash)
+      options = error_tmp
+    else
+      options ||= {}
+      options.merge!(error_tmp: erro_tmp) unless error_tmp.nil?
+    end
+    return PDF::Checker::ImageAssertion.new(self, img_path, options)
+  end
+
+  def has_graphic(params, error_tmp = nil, options = nil)
+    if error_tmp.is_a?(Hash)
+      options = error_tmp
+    else
+      options ||= {}
+      options.merge!(error_tmp: erro_tmp) unless error_tmp.nil?
+    end
+    return PDF::Checker::GraphicAssertion.new(self, params, options)
   end
 
   ##
@@ -37,90 +86,212 @@ module ActiveChecker
   end
 
 
+  ##
+  # Méthode qui vérifie la présence d'un texte dans la page
+  # 
   # @return [PDF::Checker|PDF::Checker::Page] pour procéder à la
   # suite quand le test a réussi.
   # @param [String|RegExp|Array<String|Regexp>] strs Les chaines cherchées
   # @param [String|Template] error_msg Le message d'erreur spécifique.
-  def has_text(strs, error_tmp = nil)
+  # 
+  # Fonctionnement
+  # --------------
+  # La méthode privilégiée (la première) recherche dans tous les
+  # objets textuels (text_objects) les textes cherchés. Si tous les
+  # textes sont trouvés, ils sont mis dans @objects_found pour être
+  # testés ailleurs.
+  # Pour chaque texte qui n'est pas trouvé, on regarde si son début
+  # est contenu dans le text-object et on le prend, avec un coefficiant
+  # de pertinence plus faible.
+  # 
+  def OLD_has_text(strs, error_tmp = nil)
     strs = [strs] unless strs.is_a?(Array)
-    @search_strings = strs
-    actual_text = strings.join(" ")
-    strs.each do |str|
+    # 
+    # On fait une table pour savoir quels textes|regexp ont été 
+    # trouvés. C'est une table avec en clé le texte|regexp et en
+    # valeur une liste des text-objets (entendu qu'un même texte peut
+    # se trouver à différents endroits)
+    # Chaque valeur est une liste contenant les textes-objets
+    # 
+    @found_texts = {}
+    # 
+    # On boucle sur tous les textes à trouver, qu'on cherche dans
+    # les textes-objets.
+    # 
+    # @rappel : les textes-objets peuvent contenir
+    # des textes incomplets — c'est même souvent le cas pour de longs
+    # textes : chaque ligne de paragraphe fait l'objet d'un texte-
+    # objet différent). Aussi bien, un texte cherché, si c'est tout
+    # le paragraphe, peut n'être trouvé qu'en partie, il faut le
+    # chercher dans le texte complet.
+    #
+    text_objects.each do |tob|
       # 
-      # Les arguments qui seront donnés à refute|assert_includes
+      # Boucle sur chaque texte|regexp cherché
       # 
-      args = [actual_text, str]
-      unless error_tmp.nil?
-        if error_tmp.match?(/%\{/)
-          error_msg = (error_tmp % {expected: str}) 
-        else
-          error_msg = error_tmp
+      strs.each do |regstr|
+        if case regstr
+           when String
+             tob.content.include?(regstr)
+           when Regexp
+             tob.content.match?(regstr)
+           else
+             raise ERRORS[:invalid_type_to_search_text] % "#{regstr.class}"
+          end === !@negative then
+          # => OK
+          @found_texts.merge!(regstr => []) unless @found_texts.key?(regstr)
+          @found_texts[regstr] << tob
         end
-        args << error_msg 
-      end
-      if @negative
-        refute_includes(*args)
-        @negative = false
-      else
-        assert_includes(*args)
       end
     end
+
+    # --- On cherche les textes|regexp non trouvés ---
+
+    # 
+    # Pour mettre les textes non trouvés, qui pourront être cherchés
+    # plutôt dans le texte complet ensuite.
+    # 
+    unfound_texts = []
+    # 
+    # Boucle sur tous les textes|regexps pour connaitre ceux qui 
+    # n'ont pas été trouvés et les mettre dans unfound_texts
+    # 
+    strs.each do |regstr|
+      next if @found_texts.key?(regstr)
+      unfound_texts << regstr
+    end
+
+    # 
+    # Si des textes n'ont pas été trouvé ci-dessus, il faut les 
+    # chercher dans le texte complet (assemblé)
+    # 
+    if unfound_texts.count > 1
+      # 
+      # Le texte complet (de la page ou du document)
+      # 
+      actual_text = strings.join(" ")
+      # 
+      # Boucle sur chaque texte|regexp non trouvé
+      # 
+      unfound_texts.each do |regstr|
+        # 
+        # On teste
+        #
+        if case regstr
+          when String
+            actual_text.include?(regstr)
+          when Regexp
+            actual_text.match?(regstr)
+          end === @negative then
+          #   
+          # <= Texte|regexp non trouvé (ou trouvé si @negative)
+          # => ERROR
+          # 
+          error_msg = build_error_message_text_unfound(error_tmp, actual_text, regstr)
+          # 
+          # On produit la failure (et on s'arrête là)
+          # 
+          refute(false, error_msg)
+        end
+      end
+    end #/s'il y a eu des textes non trouvés
+    # 
+    # Chainage
+    # 
     return self # pour jouer la suite, si ça passe
   end
 
+  # @return [String] Error message for assertion
+  # 
+  # @param [String|Nil] error_tmp Template de message fourni ou non
+  # @param [String] actual_text Textual content of the page (or document ?)
+  # @param [String|Regexp] regstr Text or Regexp searched in actual_text
+  # 
+  def build_error_message_text_unfound(error_tmp, actual_text, regstr)
+    # 
+    # Message d'erreur s'il n'a pas été fourni
+    # 
+    if error_tmp.nil?
+      err_key = @negative ? :text_found_in_negative : :text_unfound_in
+      error_tmp = ERRORS[:failures][err_key] % actual_text.inspect
+    end
+    # 
+    # On construit le message d'erreur
+    # 
+    error_msg = "#{error_tmp}"
+    error_msg % {expected: regstr} if error_tmp.match?(/%\{/)
+    
+    return error_msg
+  end
+
   ##
-  # L'existence du ou des textes de @objects a été exécuté, on 
+  # L'existence du ou des textes a été exécuté, on 
   # regarde maintenant s'ils correspondnt aux propriétés
+  # @rappel
+  #   Tous les textes-objets trouvés ont été mis dans @found_texts
+  #   qui contient :
+  #     key: le texte|regexp recherché
+  #     value: array of text_objects containing texte|regexp 
   # 
   def with_properties(**props)
     raise ERRORS[:no_objects_for_with_properties] if @search_strings.nil?
     # 
     # On met de côté le nombre d'éléments recherchés, s'il est
-    # fourni
+    # fourni (par l'attribut :count)
     # 
     count_wanted = props.delete(:count)
 
     #
-    # On aura besoin des matchers values plus tard
+    # Pour mettre les textes-objets retenus (et savoir si certains
+    # textes — objets-texte — n'ont pas passé la barre)
+    # Il ne contiendra que les text-objets qui contiennent le texte
+    # et qui possède les propriétés requises. Avec en clé le regstr
+    # et en valeur la liste des text-objects si plusieurs ont été
+    # trouvés.
     # 
-    @matchers = []
+    @new_found_texts = nil
 
     # 
-    # Test
+    # Boucle sur tous les texte-objets trouvés
     # 
-    @search_strings.each do |str| # String or Regexp
+    @search_strings.each do |regstr, text_objects|
       # 
       # Pour mettre les objets contenant le texte
       # 
       matchers_found        = []
       matchers_text_found   = []
       matchers_props_found  = []
-      #
-      # On commence par chercher les objets de page ou de document qui
-      # contient le texte|reg +str+
-      #
-      self.texts_objects.each do |ptext|
-        matcher = ptext.matching_level(str, props)
-        if matcher.match_all?
-          # 
-          # Tout match pour cet objet
-          # 
-          # puts "Tout matche pour #{ptext.inspect}".jaune
-          matchers_found << matcher
-        
-        elsif matcher.text_is_matching?
-          # 
-          # Le texte de l'objet matche, mais pas le reste
-          # 
-          matchers_text_found << matcher
 
-        elsif matcher_props_are_matching?
+      text_objects.each do |text_object|
+        # 
+        # Le "level-matcher" qui va nous permettre de voir si les
+        # propriétés existent pour le texte-objet
+        # 
+        matcher = text_object.matching_level(regstr, props)
+        if matcher.props_are_matching? === !@negative
           # 
-          # Les propriétés matchent mais pas le texte
+          # Les propriétés matchent
           # 
-          matchers_props_found << matcher
-        
+          @new_found_texts.merge!(regstr => []) unless @new_found_texts.key?(regstr)
+          @new_found_texts[regstr] << text_objet
+        else
+          # 
+          # Les propriétés ne matchent pas
+          # 
+          matchers_props_unfound << matcher
         end
+      end
+
+      if not(@new_found_texts.key?(regstr))
+        # 
+        # Un texte trouvé ne possède pas les propriétés attendues
+        # Cela provoque forcément une erreur (mais incomplète puisque
+        # les textes suivants n'ont pas encore été examinés)
+        err_message = matchers_props_unfound.map do |matcher|
+          matcher.build_failure_message_with_good_and_bad_properties
+        end.join("\n\- ")
+        refute(false, err_message)
+
       end
 
       # puts "matchers_found = #{matchers_found.inspect}".jaune
@@ -149,7 +320,7 @@ module ActiveChecker
       # 
       @matchers += matchers_found
 
-    end
+    end #/fin boucles sur chaque texte-objet possédant le texte
 
     # 
     # Mesure de prudence
