@@ -13,7 +13,8 @@ require 'pdf/checker/pdf_checker'
 require 'pdf/checker/metadata'
 require 'pdf/checker/pages'
 require 'pdf/checker/Page'
-require 'pdf/checker/Page_Text'
+require 'pdf/checker/text_object'
+require 'pdf/checker/text_object_matcher'
 require 'pdf/checker/receivers'
 require 'pdf/checker/assertions'
 require 'pdf/checker/assertions/assertion'
@@ -21,7 +22,6 @@ require 'pdf/checker/assertions/neg_assertion'
 require 'pdf/checker/assertions/text_assertion'
 require 'pdf/checker/assertions/image_assertion'
 require 'pdf/checker/assertions_pages'
-require 'pdf/checker/level_matcher'
 
 module Pdf
   module Checker

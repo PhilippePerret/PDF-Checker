@@ -5,19 +5,25 @@ invalid_type_to_search_text: "La recherche de texte nécessite un String ou un R
 object_text_properties_must_be_an_hash: "Les propriétés de l'objet-texte doivent être définies par une table (Hash)."
 unknow_text_object_property: "La propriété %s n'est pas définie pour les objets textuels."
 
+systemic:
+  dont_know_how_to_deal_with_coor: "Je ne sais pas comment traiter une coordonnée de type %s."
+
 failures:
   expected: "attendu :"
   actual:   "valeur :"
   text_unfound_in: "Le texte %s devrait contenir %%{expected}."
   text_found_in_negative: "Le texte %s ne devrait pas contenir %%{expected}"
   bad_page_count: "Le document devrait contenir %s page. Il en contient %."
+  bad_count_with_properties: "Le texte %{searched} était cherché %{expected} fois. Il a été trouvé %{actual} fois."
   text_with_properties_not_found: "Impossible de trouver le texte %s avec les propriétés %s."
-  text_founds_but_not_count: "Des textes répondant aux propriétés ont été trouvées, mais pas le nombre voulu. Attendus : %s. Trouvés : %s."
+  text_founds_but_not_count: "Des éléments répondant aux propriétés ont été trouvées, mais pas le nombre voulu. Attendus : %s. Trouvés : %s."
+  objects_founds_but_not_count: "Des éléments répondant aux propriétés ont été trouvées, mais pas le nombre voulu. Attendus : %s. Trouvés : %s."
   text_unfound: "Aucun texte correspondant aux critères n'a été trouvé."
   but_only_text_found: "Mais des textes approchants ont été trouvés :"
   but_only_props_found: "Mais des textes ne correspondants pas ont été trouvés avec les bonnes propriétés : %s"
-  text_with_good_and_bad_property: "- le texte %{text} à %{at} %{goods} et les propriétés erronées : %{bads}."
-  any_good_properties: "sans aucune bonne propriété"
-  the_good_properties: "les bonnes propriétés : "
+  text_with_good_and_bad_property: "- le texte %{text} contenant %{searched} est situé à %{at}, il %{goods} et les propriétés erronées : %{bads}."
+  any_good_properties:  "ne possède aucune bonne propriété"
+  the_good_property:    "possède la bonne propriété %s"
+  the_good_properties:  "possède les bonnes propriétés %s"
 
   searched_text_required_for_at_test: "Des textes doivent être fournis, pour faire une recherche de positionnement de texte…"

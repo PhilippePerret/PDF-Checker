@@ -18,15 +18,9 @@ class Text
   attr_reader :page
   attr_reader :properties
 
-  # @return [LevelMatcher] Un level matcher — instance de niveau de correspondance —
-  #     qui indique le degré de correspondance de l'objet texte avec
-  #     les données fournies, à savoir :
-  # @param [String|Regex] regstr Le texte à trouver (string ou expression régulière)
-  # @param [Hash] props Les propriétés (:font, :size, :at, etc.)
-  # and match properties +props+
-  def matching_level(regstr, props = nil, options = nil)
-    return LevelMatcher.new(self, regstr, props)
-  end
+  # [PDF::Checker::TextAssertion] Pour chercher des textes dans cet
+  # objet textuel.
+  attr_accessor :matcher
 
   # @param [PDF::Checker::Page] page which contains text
   # @param [ShowTextReceiver] receiver

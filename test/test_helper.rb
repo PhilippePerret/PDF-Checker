@@ -37,7 +37,6 @@ module Minitest::Assertions
 
   def assert_success( err_msg = nil, &block)
     if block_given?
-      ini_assertions_count = assertions.freeze
       problemo = nil
       begin
         yield
