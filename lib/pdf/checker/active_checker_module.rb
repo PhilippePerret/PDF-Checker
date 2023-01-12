@@ -49,7 +49,13 @@ module ActiveChecker
     end
     assertion = PDF::Checker::TextAssertion.new(self, strs, options)
     assertion.proceed
-    return assertion
+    return assertion # chainage
+  end
+
+  def has_font(font_name)
+    assertion = PDF::Checker::FontAssertion.new(self, font_name)
+    assertion.proceed
+    return assertion # chainage
   end
 
   def has_image(img_path, error_tmp = nil, options = nil)

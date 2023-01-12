@@ -2,7 +2,7 @@ require 'minitest/assertions'
 module PDF
 class Checker
   include Minitest::Assertions
-  include ActiveChecker
+  # include ActiveChecker
 
   attr_reader :path
   attr_reader :options

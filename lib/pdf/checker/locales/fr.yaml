@@ -27,3 +27,5 @@ failures:
   the_good_properties:  "possède les bonnes propriétés %s"
 
   searched_text_required_for_at_test: "Des textes doivent être fournis, pour faire une recherche de positionnement de texte…"
+
+  page_should_contain_font: "La page devrait contenir la font %s. Elle contient les fontes : %s"

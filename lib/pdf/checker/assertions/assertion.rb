@@ -2,13 +2,14 @@ module PDF
 class Checker
 class Assertion
   include Minitest::Assertions
-
+  include ErrorModule
+  
   attr_reader :owner
   attr_accessor :assertions
   attr_reader :searched
   attr_reader :options
 
-  def initialize(owner, searched, options)
+  def initialize(owner, searched, **options)
     @owner      = owner # page
     @searched   = searched # image path, liste de texte|regstr…
     @options    = options  # à commencer par le message d'erreur

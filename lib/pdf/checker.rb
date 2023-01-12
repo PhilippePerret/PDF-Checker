@@ -4,6 +4,7 @@ require 'clir'
 require 'prawn'
 require "prawn/measurement_extensions" # to use 1.cm etc.
 Prawn::Fonts::AFM.hide_m17n_warning = true
+require 'pdf/checker/numeric'
 require 'pdf/checker/constants'
 require 'pdf/checker/config'
 require 'pdf/checker/active_checker_module'
@@ -20,6 +21,7 @@ require 'pdf/checker/assertions'
 require 'pdf/checker/assertions/assertion'
 require 'pdf/checker/assertions/neg_assertion'
 require 'pdf/checker/assertions/text_assertion'
+require 'pdf/checker/assertions/font_assertion'
 require 'pdf/checker/assertions/image_assertion'
 require 'pdf/checker/assertions_pages'
 
