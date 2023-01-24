@@ -42,13 +42,22 @@ class Text
       Iconv.iconv('utf-8', 'iso8859-1', str).join(' ') # TODO en fonction des langues (LANG)
     end
   end
-  def font  ; properties[:text_font_and_size][0] end
-  def size  ; properties[:text_font_and_size][1] end
+  # @return [Hash] Les données de la fonte ({:Type, :Subtype, :BaseFont, :Encoding})
+  def data_font
+    page.fonts[font_id]
+  end
+  def font_id
+    @font_id ||= properties[:text_font_and_size][0]
+  end
+  def font
+    @font ||= get_real_font_name  
+  end
+  alias :font_name :font
+  def size      ; properties[:text_font_and_size][1] end
+  alias :font_size :size
+  def style     ; get_style_from_font end
+  alias :font_style :style
 
-  # @note
-  #   Le top de ce :at est top-based, c'est-à-dire calculé par 
-  #   rapport au top de la page, et pas par rapport au bas comme c'est
-  #   le cas dans la famille PDF::Reader et Prawn
   def at        ; @at       ||= [left, top]       end
   def top       ; @top      ||= position[:top]    end
   def left      ; @left     ||= position[:left]   end
@@ -57,6 +66,26 @@ class Text
   def position  ; @position ||= get_position      end
 
   private
+
+  def get_real_font_name
+    fn = font_id.dup
+    return fn unless fn.to_s.match?(/F[0-9].[0-9]/)
+    fn = page.fonts[fn]
+    return fn[:BaseFont].to_s.split('-').first
+  end
+
+    # Hack method to get style from font
+    # (Je pourrais mieux le faire avec Prawn, mais là, je sèche…)
+    def get_style_from_font
+      case data_font[:BaseFont].to_s.downcase
+      when /(bold.+italic|italic.+bold)/ then [:bold, :italic]
+      when /(oblique|italic)/ then :italic
+      when /bold/   then :bold
+      when /common/ then :common
+      when /roman/  then :roman
+      else :regular
+      end
+    end
 
     def get_position
       pos = if properties[:move_text_position]

@@ -30,6 +30,28 @@ class Page
     @matchers       = nil # les level-matchers des textes trouvés
   end
 
+  # @return [Boolean] true si la page contient les textes +searched+
+  # 
+  # Parfois, quand le texte cherché est découpé, on ne trouve pas
+  # ce qu'on veut. Cette méthode permet, avant une recherche plus
+  # profonde, de s'assurer que le texte est bien contenu dans la
+  # page, en regardant dans le texte complet.
+  # 
+  # @param [Array<String>] searched Liste des textes à trouver.
+  # 
+  def matches_texts?(searched, **options)
+    strict = options[:strict] === true
+    searched.each do |regstr|
+      case regstr
+      when String
+        if strict then text == regstr else text.include?(regstr) end
+      when Regexp
+        text.match?(regstr)
+      end == not(@negative) || return
+    end
+    return true
+  end
+
   # @return [Array<PDF::Checker::Page::Text>] List of every texts-objects.
   def texts
     @texts ||= begin

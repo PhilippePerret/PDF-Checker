@@ -37,17 +37,26 @@ module ActiveChecker
   include ErrorModule
 
   def not
-    return PDF::Checker::NegAssertion.new(self, nil, nil)
+    return PDF::Checker::NegAssertion.new(self, nil)
   end
 
   def has_text(strs, error_tmp = nil, options = nil)
+    # 
+    # Quand les options ont été fournies sans message d'erreur
+    # 
     if error_tmp.is_a?(Hash)
       options = error_tmp
     else
       options ||= {}
       options.merge!(error_tmp: error_tmp) unless error_tmp.nil?
     end
-    assertion = PDF::Checker::TextAssertion.new(self, strs, options)
+    # 
+    # Instanciation d'une nouvelle assertion textuelle
+    # 
+    assertion = PDF::Checker::TextAssertion.new(self, strs, **options)
+    # 
+    # On procède à la vérification
+    # 
     assertion.proceed
     return assertion # chainage
   end
@@ -65,7 +74,7 @@ module ActiveChecker
       options ||= {}
       options.merge!(error_tmp: erro_tmp) unless error_tmp.nil?
     end
-    return PDF::Checker::ImageAssertion.new(self, img_path, options)
+    return PDF::Checker::ImageAssertion.new(self, img_path, **options)
   end
 
   def has_graphic(params, error_tmp = nil, options = nil)
@@ -75,7 +84,7 @@ module ActiveChecker
       options ||= {}
       options.merge!(error_tmp: erro_tmp) unless error_tmp.nil?
     end
-    return PDF::Checker::GraphicAssertion.new(self, params, options)
+    return PDF::Checker::GraphicAssertion.new(self, params, **options)
   end
 
   ##

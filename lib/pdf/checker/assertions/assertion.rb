@@ -16,6 +16,28 @@ class Assertion
     @assertions = 0 # pour Minitest
     @expected_count = nil
     @objects_found  = nil # sera la liste des objets quelconques trouvés
+    #
+    # Pour trouver l'origine du test
+    # 
+    begin
+      raise
+    rescue Exception => e
+      quatrechemins = []
+      chemins = e.backtrace.dup
+      while quatrechemins.count < 4 && chemins.count > 0
+        pth = chemins.shift
+        unless pth.include?('pdf-checker/lib/pdf/checker')
+          quatrechemins << pth.sub(/#{Dir.home}/, '~')
+        end
+      end
+    end
+    @test_source = quatrechemins.join("\n")
+  end
+
+  # Pour ajouter '+ source' aux messages d'erreur et avoir une
+  # source précise.
+  def source
+    @source ||= "\n#{@test_source}"    
   end
 
   def negative?
@@ -45,10 +67,17 @@ class Assertion
   # 
   # @param [Numeric|Hash] arg1 Soit la position top (si arg2 nil), soit un hash {:left, :top}, soit un array [<left>,<top>]
   def at(arg1, arg2 = nil, opts = nil)
-    if @objects_found.nil?
+    if @objects_found.nil? && not(negative?)
       raise PDF::Checker::ERRORS[:failures][:searched_text_required_for_at_test]
     end
     # 
+    # Si c'est un test @negative et qu'aucun texte n'a été trouvé,
+    # le résultat est donc positif
+    # 
+    if negative? && @objects_found.empty?
+      assert(true) and return
+    end
+     # 
     # Mettre les opts tout de suite (elles peuvent être remplacées
     # par arg2 si c'est un Hash)
     # 
@@ -100,7 +129,7 @@ class Assertion
       diff_regstr = @objects_found.keys - good_objects.keys
       error_msg = concocte_at_error(bad_objects, diff_regstr)
     end
-    assert(count_is_right, error_msg)
+    assert(count_is_right, error_msg + source)
 
     #
     # Si un nombre précis est défini, il faut le trouver pour chaque
@@ -111,10 +140,76 @@ class Assertion
         has_expected_count = expected_count == objects.count
         next if has_expected_count
         error_msg = ERRORS[:failures][:objects_founds_but_not_count] % [expected_count, objects.count]
-        assert(has_expected_count, error_msg)
+        assert(has_expected_count, error_msg + source)
       end
     end
   end
+
+  ##
+  # Raise a failure if objects are not below the given +top+
+  def below(top)
+    if @objects_found.nil?
+      raise PDF::Checker::ERRORS[:failures][:searched_text_required_for_at_test]
+    end
+    # 
+    # Si c'est un test @negative et qu'aucun texte n'a été trouvé,
+    # le résultat est donc positif
+    # 
+    if negative? && @objects_found.empty?
+      assert(true) and return
+    end
+     # 
+    # At least one object should be below the +top+
+    # 
+    goods = []
+    @objects_found.each do |regstr, objects|
+      objects.each do |object|
+        goods << object if object.top < top
+      end
+    end
+    # 
+    # Result
+    # 
+    if goods.empty? == not(negative?)
+      err_msg = ERRORS[:failures][:items_found_but_not_below] % [@objects_found.keys.pretty_join, top.to_s]
+      refute(goods.empty?, err_msg + source)
+    end
+    return true
+  end
+  alias :en_dessous_de :below
+
+  ##
+  # Raise a failure if objects are not above the given +top+
+  def above(top)
+    if @objects_found.nil?
+      raise PDF::Checker::ERRORS[:failures][:searched_text_required_for_at_test]
+    end
+    # 
+    # Si c'est un test @negative et qu'aucun texte n'a été trouvé,
+    # le résultat est donc positif
+    # 
+    if negative? && @objects_found.empty?
+      assert(true) and return
+    end
+     # 
+    # At least one object should be below the +top+
+    # 
+    goods = []
+    @objects_found.each do |regstr, objects|
+      objects.each do |object|
+        goods << object if object.top > top
+      end
+    end
+    # 
+    # Result
+    # 
+    if goods.empty? == not(negative?)
+      err_msg = ERRORS[:failures][:items_found_but_not_above] % [@objects_found.keys.pretty_join, top.to_s]
+      refute(goods.empty?, err_msg + source)
+    end
+    return true
+  end
+  alias :au_dessus_de :above
 
   # def close_to(arg1, arg2 = nil)
   #   self.at(arg1, arg2, delta = 2)

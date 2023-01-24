@@ -1,3 +1,12 @@
+# 0.5.0
+
+  - Traitement du cas particulier d'un texte recherché et réparti
+    entre plusieurs lignes, mais ne commençant pas forcément au
+    début d'une ligne.
+  - Ajout du dossier 'extensions', avec ajout de l'extension de la
+    class String, pour la méthode #words (mais qui n'a pas servi,
+    finalement)
+    
 # 0.4.0
 
   - Rationnalisation complète des tests sur les textes, avec

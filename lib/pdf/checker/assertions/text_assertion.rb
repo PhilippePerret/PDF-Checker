@@ -57,18 +57,98 @@ class TextAssertion < PDF::Checker::Assertion
       end #/fin boucle sur tous les textes|regexp cherchés
     end
 
+    #
+    # Cas particulier (et particulièrement épineux) ou le texte n'a
+    # pas été trouvé dans les text-objets (qui, rappelons-le, ne
+    # contiennent que le texte d'une simple ligne du PDF), mais où 
+    # il se trouve dans le texte complet. Dans ce cas, on va le 
+    # rechercher dans plusieurs textes-objects qui se suivent.
     # 
-    # Dans tous les cas, on doit avoir autant de réussite que
-    # de textes recherchés (ou non)
-    count_is_right = searched.count == tof.count
-    err_msg = nil
-    unless count_is_right
-      # diff_regstrs = (searched - tof.keys).map{|s|s.inspect}.pretty_join
-      diff_regstrs = bof.keys.map{|s|s.inspect}.pretty_join
-      err_msg = "Les textes suivants n'ont pas été trouvés : #{diff_regstrs}"
+    # @note
+    #   La méthode owner.matches_texts? tient compte de la négativité
+    # 
+    if tof.count == 0
+      if not(owner.matches_texts?(searched))
+        # 
+        # Quand les textes n'ont pas été trouvés (ou trouvés, en mode
+        # négative), on produit une erreur
+        # 
+        err_msg =
+          if options[:error_tmp]
+            options[:error_tmp] % "dans le texte complet"
+          elsif negative?
+            "Le ou les textes suivants ont été trouvés : #{searched.inspect}"
+          else
+            "Le ou les textes suivants n'ont pas été trouvés : #{searched.inspect}"
+          end
+        assert(false, err_msg)
+        return
+      end
+      # 
+      # Quand on passe ici, c'est que tous les textes ont été trouvés
+      # dans le texte général (ou non trouvés en mode negatif).
+      # 
+      # 
+      # En mode négatif, on peut s'arrêter ici.
+      # 
+      assert(true) and return if negative?
+      # 
+      # En mode positif, on doit rechercher les text-objets qui 
+      # vont correspondre, au texte cherché, découpé.
+      # 
+      searched.each do |regstr|
+        text_object = nil
+        owner.texts_objects.each_cons(2) do |to1, to2|
+          fusion = to1.content.rstrip + ' ' + to2.content
+          text_object = to1 and break if fusion.match?(regstr)
+        end
+        # 
+        # Si le texte n'a toujours pas été trouvé, on fait une
+        # dernière tentative sur 3 texts-objects
+        # 
+        if text_object.nil?
+          owner.texts_objects.each_cons(3) do |to1, to2, to3|
+            fusion = to1.content.rstrip + ' ' + to2.content.strip + ' ' + to3.content
+            text_object = to1 and break if fusion.match?(regstr)
+          end
+        end
+        # 
+        # Si le texte n'a pas été trouvé ici, c'est qu'on ne peut
+        # pas le trouve avec nos moyens (mais il existe puisqu'on
+        # l'a trouvé dans le texte global)
+        # 
+        if text_object.nil?
+          assert(false, ERRORS[:failures][:unabled_to_find_textobject_for_text_in_whole] % regstr)
+        else
+          # 
+          # On a trouvé un text-objet qui correspond !
+          #
+          tof.key?(regstr) || tof.merge!(regstr => [])
+          tof[regstr] << text_object
+        end
+      end
     end
-    assert(count_is_right, err_msg)
 
+    # 
+    # Dans tous les cas, on doit avoir autant de réussites que
+    # de textes recherchés (ou non)
+    unless negative?
+      count_is_right = searched.count == tof.count
+      err_msg = ""
+      unless count_is_right
+        diff_regstrs = (searched - tof.keys).map{|s|s.inspect}
+        err_msg =
+          if options[:error_tmp]
+            options[:error_tmp] % diff_regstrs.inspect
+          elsif diff_regstrs.count == 1
+            "#{ERRORS[:failures][:following_text_unfound]}#{diff_regstrs.first}"
+          else
+            diff_regstrs = diff_regstrs.pretty_join
+            "#{ERRORS[:failures][:following_texts_unfound]}#{diff_regstrs}"
+          end
+      end
+      assert(count_is_right, err_msg + source)
+    end
 
     if expected_count
       # 
@@ -77,7 +157,11 @@ class TextAssertion < PDF::Checker::Assertion
       # ce cas)
       # 
       tof.each do |regstr, text_objects|
-        assert_equal(expected_count, text_objects.count)
+        if negative?
+          refute_equal(expected_count, text_objects.count + source)
+        else
+          assert_equal(expected_count, text_objects.count + source)
+        end
       end
     end
     # 
@@ -94,6 +178,13 @@ class TextAssertion < PDF::Checker::Assertion
   # @param [Hash] properties Les propriétés attendues
   # 
   def with_properties(**properties)
+    # 
+    # Si c'est un test @negative et qu'aucun texte n'a été trouvé,
+    # le résultat est donc positif
+    # 
+    if negative? && @objects_found.empty?
+      assert(true) and return
+    end
     #
     # Si un nombre précis est attendu
     # 
@@ -137,14 +228,14 @@ class TextAssertion < PDF::Checker::Assertion
     # texte-objets que de textes fournis
     # 
     keys_diff = tof.keys - new_tof.keys
-    assert(tof.count == new_tof.count, concocte_error_message(bad_tof, keys_diff))
+    assert(tof.count == new_tof.count, concocte_error_message(bad_tof, keys_diff) + source)
 
     # 
     # Quand un nombre précis est attendu
     #
     unless count_expected.nil?
       new_tof.each do |regstr, tos|
-        assert_equal(count_expected, tos.count, ERRORS[:failures][:bad_count_with_properties] % {searched: regstr.inspect, expected: count_expected, actual: tos.count})
+        assert_equal(count_expected, tos.count, (ERRORS[:failures][:bad_count_with_properties] % {searched: regstr.inspect, expected: count_expected, actual: tos.count} )+ source)
       end 
     end
 

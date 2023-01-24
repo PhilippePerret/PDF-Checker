@@ -13,6 +13,8 @@ failures:
   actual:   "valeur :"
   text_unfound_in: "Le texte %s devrait contenir %%{expected}."
   text_found_in_negative: "Le texte %s ne devrait pas contenir %%{expected}"
+  following_text_unfound: "Le texte suivant n'a pas été trouvé : "
+  following_texts_unfound: "Les textes suivants n'ont pas été trouvés : "
   bad_page_count: "Le document devrait contenir %s page. Il en contient %."
   bad_count_with_properties: "Le texte %{searched} était cherché %{expected} fois. Il a été trouvé %{actual} fois."
   text_with_properties_not_found: "Impossible de trouver le texte %s avec les propriétés %s."
@@ -29,3 +31,8 @@ failures:
   searched_text_required_for_at_test: "Des textes doivent être fournis, pour faire une recherche de positionnement de texte…"
 
   page_should_contain_font: "La page devrait contenir la font %s. Elle contient les fontes : %s"
+
+  items_found_but_not_above:  "Les textes cherchés (%s) ont été trouvés mais en dessous de %s."
+  items_found_but_not_below:  "Les textes cherchés (%s) ont été trouvés mais au-dessus de %s."
+
+  unabled_to_find_textobject_for_text_in_whole: "Malheureusement, il est impossible de trouver le text-objet pouvant contenir le texte <<<%s>>> (alors que celui-ci a été trouvé dans le texte complet). Essayer une recherche avec un texte plus court."

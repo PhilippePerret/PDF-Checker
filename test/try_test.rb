@@ -29,11 +29,8 @@ class TryTest < Minitest::Test
       # ce checker, pour le moment, je n'ai aucun moyen de savoir si
       # on a écrit avec text ou draw_text (qui conserve, lui, la 
       # valeur vraiment définie).
-      # Les deux solutions :
-      #   - on peut trouver un callback (par receiver) qui définit si
-      #     le texte a été écrit par text ou draw_text, voire autre
-      #     chose encore
-      #   - soit, pour que les tests soient bons, il faut réécrive
+      # La solution :
+      #   - il faut réécriere
       #     la méthode 'move_cursor_to' pour qu'elle ajoute l'ascender
       #     de la fonte courante… (ce qui oblige l'utilisateur à
       #     modifier son programme…)
@@ -46,6 +43,7 @@ class TryTest < Minitest::Test
       case print_text_method
       when :text
         puts "bounds.absolute_bottom = #{bounds.absolute_bottom}"
+        font("Courier", **{style: :italic, size: 11})
         move_cursor_to(12)
         text texte
         # avec 12
@@ -62,10 +60,11 @@ class TryTest < Minitest::Test
       puts "self.y après = #{self.y.inspect}"
     end
     apdf = PDF::Checker.new(pdf_path)
-    puts "PROPERTIES : #{apdf.page(1).texts_objects[0].properties.inspect}"
-    # puts "\n*** SCÉNARIO : #{apdf.page(1).scenario}"
+    # puts "PROPERTIES : #{apdf.page(1).texts_objects[0].properties.inspect}"
+    # puts "\n*** SCÉNARIO : #{apdf.page(1).scenario.join("\n")}"
+    # puts "FONTS: #{apdf.page(1).fonts.inspect}"
     assert_success { apdf.page(1).has_text(texte)}
-    props = {at: [0, 100]}
+    props = {at: [0, 12], font: 'Courier', style: :italic}
     assert_success { apdf.page(1).has_text(texte).with(**props)}
   end
 

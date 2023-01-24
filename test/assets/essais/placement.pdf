@@ -17,15 +17,15 @@ endobj
 >>
 endobj
 4 0 obj
-<< /Length 88
+<< /Length 86
 >>
 stream
 q
 
 BT
 0.0 12.0 Td
-/F1.0 12 Tf
-[<506c6163652061203130206d6d206574203530206d6d>] TJ
+/F2.0 11 Tf
+<506c6163652061203130206d6d206574203530206d6d> Tj
 ET
 
 Q
@@ -42,7 +42,7 @@ endobj
 /ArtBox [0 0 612 792]
 /Contents 4 0 R
 /Resources << /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
-/Font << /F1.0 6 0 R
+/Font << /F2.0 6 0 R
 >>
 >>
 >>
@@ -50,7 +50,7 @@ endobj
 6 0 obj
 << /Type /Font
 /Subtype /Type1
-/BaseFont /Helvetica
+/BaseFont /Courier-Oblique
 /Encoding /WinAnsiEncoding
 >>
 endobj
@@ -61,13 +61,13 @@ xref
 0000000109 00000 n 
 0000000158 00000 n 
 0000000215 00000 n 
-0000000353 00000 n 
-0000000619 00000 n 
+0000000351 00000 n 
+0000000617 00000 n 
 trailer
 << /Size 7
 /Root 2 0 R
 /Info 1 0 R
 >>
 startxref
-716
+720
 %%EOF
